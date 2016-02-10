@@ -23,8 +23,8 @@ namespace MonoColorGame
         bool gameOver = false;
         Cursor _cursor;
         KeyboardState previousKeyState;
-
-        Color[] _colorchoices = new Color[] { Color.Red, Color.Green, Color.Blue };
+        int _previousChoice;
+        Color[] _colorchoices = new Color[] { Color.Red, Color.Green, Color.Blue, Color.Black };
         enum colors { Red, Green, Blue };
         int _currentChoice = 0;        
         private string msg;
@@ -59,7 +59,7 @@ namespace MonoColorGame
             IsMouseVisible = true;
             spriteBatch = new SpriteBatch(GraphicsDevice);
             messages = Content.Load<SpriteFont>("message");    
-            _playerColors = new colorObject[3];
+            _playerColors = new colorObject[_colorchoices.Length];
             Vector2 startPosition = new Vector2(100,100);
             Texture2D tx = Content.Load<Texture2D>("colorTexture");
             Random r = new Random();
@@ -71,12 +71,14 @@ namespace MonoColorGame
                         tx, _colorchoices[i],r.Next(1,10));
                 startPosition += new Vector2(tx.Width + 10, 0);
             }
+            _playerColors[_currentChoice].Selected = true;
             // TODO: use this.Content to load your game content here
             Texture2D cursorTx = Content.Load<Texture2D>("arrow");
 
             // Set up the arrow and point it at the first choice
             
-            _cursor = new Cursor(cursorTx, _playerColors[_currentChoice].CenterPos - new Vector2(0,cursorTx.Height));
+            _cursor = new Cursor(cursorTx, _playerColors[_currentChoice].CenterPos
+                - new Vector2(0,cursorTx.Height));
             
             reset();
         }
@@ -99,20 +101,35 @@ namespace MonoColorGame
         {
             // Allows the game to exit
             KeyboardState currentKeyState = Keyboard.GetState();
+            _previousChoice = _currentChoice;
             if (Keyboard.GetState().IsKeyDown(Keys.Escape))
                 this.Exit();
             if (Keyboard.GetState().IsKeyDown(Keys.P))
                 reset();
-            if(currentKeyState.IsKeyUp(Keys.Right) && previousKeyState.IsKeyDown(Keys.Right))
+
+            if(currentKeyState.IsKeyUp(Keys.Right) 
+                && previousKeyState.IsKeyDown(Keys.Right))
             {
-                _currentChoice = _currentChoice++ < _playerColors.Length - 1 ? _currentChoice : 0;
+                _currentChoice = _currentChoice++ < _playerColors.Length - 1 
+                                    ? _currentChoice : 0;
             }
 
-            if (currentKeyState.IsKeyUp(Keys.Left) && previousKeyState.IsKeyDown(Keys.Left))
+            if (currentKeyState.IsKeyUp(Keys.Left) 
+                && previousKeyState.IsKeyDown(Keys.Left))
             {
-                _currentChoice = _currentChoice-- > 0 ? _currentChoice : _playerColors.Length - 1;
+                _currentChoice = _currentChoice-- > 0 
+                    ? _currentChoice : _playerColors.Length - 1;
             }
+
+            if(_currentChoice != _previousChoice )
+            {
+                _playerColors[_previousChoice].Selected = false;
+                _playerColors[_currentChoice].Selected = true;
+            }
+
             _cursor.Position = _playerColors[_currentChoice].CenterPos - new Vector2(0,_cursor.Tx.Height);
+            
+
             if (currentKeyState.IsKeyUp(Keys.Enter) && previousKeyState.IsKeyDown(Keys.Enter))
                 _playerColors[_currentChoice].Chosen = true;
 

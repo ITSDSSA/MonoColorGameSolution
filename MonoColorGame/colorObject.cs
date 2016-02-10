@@ -14,13 +14,12 @@ namespace MonoColorGame
         Color _myColor;
         bool _visible = true;
         int _id;
-
+        bool _selected = false;
         public bool Visible
         {
             get { return _visible; }
             set { _visible = value; }
         }
-
         public Color MyColor
         {
             get { return _myColor; }
@@ -28,7 +27,6 @@ namespace MonoColorGame
         }
         Vector2 _position;
         bool _chosen = false;
-
         public bool Chosen
         {
             get { return _chosen; }
@@ -67,6 +65,19 @@ namespace MonoColorGame
             }
         }
 
+        public bool Selected
+        {
+            get
+            {
+                return _selected;
+            }
+
+            set
+            {
+                _selected = value;
+            }
+        }
+
         SpriteFont _font;
 
         public colorObject(SpriteFont Font, Vector2 pos, Texture2D tx, Color c, int cid)
@@ -88,7 +99,11 @@ namespace MonoColorGame
         public void Draw(SpriteBatch sp)
         {
             sp.Begin();
-            sp.Draw(_tx, Target, _myColor);
+            if (Selected)
+            {   
+                sp.Draw(_tx, Target, new Color(_myColor,128));
+            }
+            else sp.Draw(_tx, Target, _myColor);
             if (_id != 0)
             {
                 Vector2 IdSize = _font.MeasureString(_id.ToString());
